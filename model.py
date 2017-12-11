@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# # Project: **Car Behavioral Cloning using Keras** 
+# # Behavioral Cloning | End to End Learning for Self Driving Cars
 # **In this project, I used a deep neural network (built with [Keras](https://keras.io/)) to clone car driving behavior.**
 # 
 # **The dataset used to train the network is generated from [Udacity's Self-Driving Car Simulator](https://github.com/udacity/self-driving-car-sim), and it consists of images taken from three different camera angles (Center - Left - Right), in addition to the steering angle, throttle, brake, and speed during each frame.**
@@ -13,7 +13,8 @@
 # - **Data Augmentation.**
 # - **Data Preprocessing.**
 # - **Model Architecture.**
-# - **Model Training.**
+# - **Model Training and Evaluation.**
+# - **Model Testing on the simulator.**
 # 
 # I'll explain each step in details below.
 
@@ -49,14 +50,14 @@ import matplotlib.image as mpimg
 # Download the dataset from [here](https://d17h27t6h515a5.cloudfront.net/topher/2016/December/584f6edd_data/data.zip).
 # This dataset contains more than 8,000 frame images taken from the 3 cameras (3 images for each frame), in addition to a `csv` file with the steering angle, throttle, brake, and speed during each frame.
 
-# In[3]:
+# In[2]:
 
 
 data_dir = './data/'
 labels_file = './data/driving_log.csv'
 
 
-# In[4]:
+# In[3]:
 
 
 def load_data(labels_file, test_size):
@@ -74,7 +75,7 @@ def load_data(labels_file, test_size):
     return X_train, X_valid, y_train, y_valid
 
 
-# In[5]:
+# In[4]:
 
 
 def load_image(data_dir, image_file):
@@ -87,44 +88,10 @@ def load_image(data_dir, image_file):
     return mpimg.imread(os.path.join(data_dir, image_file.strip()))
 
 
-# In[17]:
+# In[5]:
 
 
 data = load_data(labels_file, 0.2)
-
-
-# In[80]:
-
-
-def list_images(data, labels):
-    """
-    Display a list of images in a single figure with matplotlib.
-        Parameters:
-            dataset: An np.array compatible with plt.imshow.
-            labels: A string to be used as a label for each image.
-    """
-    plt.figure(figsize=(15, 16))
-    indx = 0
-    for i in range(3):
-        plt.subplot(1, 3, i+1)
-        plt.imshow(load_image(data_dir, str(data[indx])))
-        plt.xlabel("Steering angle: {:.5f}".format(labels[indx]))
-        plt.xticks([])
-        plt.yticks([])
-        indx += 1
-    plt.tight_layout(pad=0, h_pad=0, w_pad=0)
-    plt.show()
-
-
-# In[84]:
-
-
-plt.imshow(load_image(data_dir, str(data[0][0][0])))
-plt.xlabel("Steering angle: {:.5f}".format(data[2][0]))
-plt.title("Training example")
-plt.xticks([])
-plt.yticks([])
-plt.show()
 
 
 # ---
@@ -134,15 +101,16 @@ plt.show()
 # -  Cropping the image to cut off the sky scene and the car front.
 # -  Resizing the image to (66 * 200), the image size that the model expects.
 # -  Converting the image to the YUV color space.
+# -  Normalizing the images (by dividing image data by 127.5 and subtracting 1.0). As stated in the Model Architecture section, this is to avoid saturation and make gradients work better).
 
-# In[6]:
+# In[7]:
 
 
 IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS = 66, 200, 3
 INPUT_SHAPE = (IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS)
 
 
-# In[7]:
+# In[8]:
 
 
 def preprocess(img):
@@ -160,17 +128,6 @@ def preprocess(img):
     return img
 
 
-# In[86]:
-
-
-plt.imshow(preprocess(load_image(data_dir, str(data[0][0][0]))))
-plt.xlabel("Steering angle: {:.5f}".format(data[2][0]))
-plt.title("Preprocessed example")
-plt.xticks([])
-plt.yticks([])
-plt.show()
-
-
 # ---
 # ## Step 2: Data Augmentation
 # 
@@ -181,7 +138,7 @@ plt.show()
 # -  Adding shadows to random images.
 # -  Altering the brightness of random images.
 
-# In[118]:
+# In[11]:
 
 
 def random_adjust(data_dir, center, left, right, steering_angle):
@@ -202,7 +159,7 @@ def random_adjust(data_dir, center, left, right, steering_angle):
     return load_image(data_dir, center), steering_angle
 
 
-# In[89]:
+# In[64]:
 
 
 def random_flip(image, steering_angle):
@@ -218,28 +175,7 @@ def random_flip(image, steering_angle):
     return image, steering_angle
 
 
-# In[148]:
-
-
-img = load_image(data_dir, str(data[0][0][1]))
-
-plt.imshow(img)
-plt.xlabel("Steering angle: {:.5f}".format(data[2][1]))
-plt.title("Image before flipping")
-plt.xticks([])
-plt.yticks([])
-plt.show()
-
-img = random_flip(img, data[2][1])
-plt.imshow(img[0])
-plt.xlabel("Steering angle: {:.5f}".format(img[1]))
-plt.title("Image after flipping")
-plt.xticks([])
-plt.yticks([])
-plt.show()
-
-
-# In[150]:
+# In[66]:
 
 
 def random_shift(image, steering_angle, range_x, range_y):
@@ -260,28 +196,7 @@ def random_shift(image, steering_angle, range_x, range_y):
     return image, steering_angle
 
 
-# In[158]:
-
-
-img = load_image(data_dir, str(data[0][0][0]))
-
-plt.imshow(img)
-plt.xlabel("Steering angle: {:.5f}".format(data[2][0]))
-plt.title("Image before shifting")
-plt.xticks([])
-plt.yticks([])
-plt.show()
-
-img = random_shift(img, data[2][1], 100, 10)
-plt.imshow(img[0])
-plt.xlabel("Steering angle: {:.5f}".format(img[1]))
-plt.title("Image after shifting")
-plt.xticks([])
-plt.yticks([])
-plt.show()
-
-
-# In[159]:
+# In[68]:
 
 
 def random_shadow(image):
@@ -290,52 +205,21 @@ def random_shadow(image):
         Parameters:
             image: The input image.
     """
-    # (x1, y1) and (x2, y2) forms a line
-    # xm, ym gives all the locations of the image
-    x1, y1 = IMAGE_WIDTH * np.random.rand(), 0
-    x2, y2 = IMAGE_WIDTH * np.random.rand(), IMAGE_HEIGHT
-    xm, ym = np.mgrid[0:IMAGE_HEIGHT, 0:IMAGE_WIDTH]
-
-    # mathematically speaking, we want to set 1 below the line and zero otherwise
-    # Our coordinate is up side down.  So, the above the line: 
-    # (ym-y1)/(xm-x1) > (y2-y1)/(x2-x1)
-    # as x2 == x1 causes zero-division problem, we'll write it in the below form:
-    # (ym-y1)*(x2-x1) - (y2-y1)*(xm-x1) > 0
-    mask = np.zeros_like(image[:, :, 1])
-    mask[(ym - y1) * (x2 - x1) - (y2 - y1) * (xm - x1) > 0] = 1
-
-    # choose which side should have shadow and adjust saturation
-    cond = mask == np.random.randint(2)
-    s_ratio = np.random.uniform(low=0.2, high=0.5)
-
-    # adjust Saturation in HLS(Hue, Light, Saturation)
-    hls = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
-    hls[:, :, 1][cond] = hls[:, :, 1][cond] * s_ratio
-    return cv2.cvtColor(hls, cv2.COLOR_HLS2RGB)
+    bright_factor = 0.3
+    x = random.randint(0, image.shape[1])
+    y = random.randint(0, image.shape[0])
+    width = random.randint(image.shape[1], image.shape[1])
+    if(x + width > image.shape[1]):
+        x = image.shape[1] - x
+    height = random.randint(image.shape[0], image.shape[0])
+    if(y + height > image.shape[0]):
+        y = image.shape[0] - y
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    image[y:y+height,x:x+width,2] = image[y:y+height,x:x+width,2]*bright_factor
+    return cv2.cvtColor(image, cv2.COLOR_HSV2RGB)
 
 
-# In[168]:
-
-
-img = load_image(data_dir, str(data[0][0][0]))
-
-plt.imshow(img)
-plt.xlabel("Steering angle: {:.5f}".format(data[2][0]))
-plt.title("Image without shadow")
-plt.xticks([])
-plt.yticks([])
-plt.show()
-
-img = random_shadow(img)
-plt.imshow(img)
-plt.xlabel("Steering angle: {:.5f}".format(data[2][0]))
-plt.title("Image with shadow")
-plt.xticks([])
-plt.yticks([])
-plt.show()
-
-
-# In[203]:
+# In[70]:
 
 
 def random_brightness(image):
@@ -351,28 +235,7 @@ def random_brightness(image):
     return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
 
 
-# In[205]:
-
-
-img = load_image(data_dir, str(data[0][0][0]))
-
-plt.imshow(img)
-plt.xlabel("Steering angle: {:.5f}".format(data[2][0]))
-plt.title("Image before altering brightness")
-plt.xticks([])
-plt.yticks([])
-plt.show()
-
-img = random_brightness(img)
-plt.imshow(img)
-plt.xlabel("Steering angle: {:.5f}".format(data[2][0]))
-plt.title("Image after altering brightness")
-plt.xticks([])
-plt.yticks([])
-plt.show()
-
-
-# In[206]:
+# In[72]:
 
 
 def augument(data_dir, center, left, right, steering_angle, range_x=100, range_y=10):
@@ -404,7 +267,7 @@ def augument(data_dir, center, left, right, steering_angle, range_x=100, range_y
 # We'll use the ConvNet from NVIDIA's paper [End to End Learning for Self-Driving Cars](https://arxiv.org/pdf/1604.07316v1.pdf), which has been proven to work in this problem domain.
 # 
 # <figure>
-#  <img src="Training_the_neural_network.png" width="1654" alt="Combined Image" />
+#  <img src="Images/Training_the_neural_network.png" width="1654" alt="Combined Image" />
 #  <figcaption>
 #  <p></p>
 #  </figcaption>
@@ -416,11 +279,13 @@ def augument(data_dir, center, left, right, steering_angle, range_x=100, range_y
 # We follow the five convolutional layers with three fully connected layers leading to an output control value which is the inverse turning radius. The fully connected layers are designed to function as a controller for steering, but we note that by training the system end-to-end, it is not possible to make a clean break between which parts of the network function primarily as feature extractor and which serve as controller."*
 
 # <figure>
-#  <img src="NVIDIA_model.png" width="624" alt="Combined Image" />
+#  <img src="Images/NVIDIA_model.png" width="624" alt="Combined Image" />
 #  <figcaption>
 #  <p></p>
 #  </figcaption>
 # </figure>
+# 
+# I've added a dropout layer to the model to prevent overfitting.
 
 # In[210]:
 
@@ -444,7 +309,12 @@ def NVIDIA_model():
 
 
 # ---
-# ## Step 3: Model Training
+# ## Step 4: Model Training and Evaluation
+# 
+# -  I've splitted the data into 80% training set and 20% validation set to measure the performance after each epoch.
+# -  I used Mean Squared Error (MSE) as a loss function to measure how close the model predicts to the given steering angle for each input frame.
+# -  I used the Adaptive Moment Estimation (Adam) Algorithm minimize to the loss function. Adam is an optimization algorithm introduced by D. Kingma and J. Lei Ba in a 2015 paper named [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980). Adam algorithm computes adaptive learning rates for each parameter. In addition to storing an exponentially decaying average of past squared gradients like [Adadelta](https://arxiv.org/pdf/1212.5701.pdf) and [RMSprop](https://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf) algorithms, Adam also keeps an exponentially decaying average of past gradients mtmt, similar to [momentum algorithm](http://www.sciencedirect.com/science/article/pii/S0893608098001166?via%3Dihub), which in turn produce better results.
+# -  I used `ModelCheckpoint` from Keras to check the validation loss after each epoch and save the model only if the validation loss reduced.
 
 # In[227]:
 
@@ -474,12 +344,10 @@ def batcher(data_dir, image_paths, steering_angles, batch_size, training_flag):
         for index in np.random.permutation(image_paths.shape[0]):
             center, left, right = image_paths[index]
             steering_angle = steering_angles[index]
-            # Argumentation
             if training_flag and np.random.rand() < 0.6:
                 image, steering_angle = augument(data_dir, center, left, right, steering_angle)
             else:
                 image = load_image(data_dir, center) 
-            # Add the image and steering angle to the batch
             images[i] = preprocess(image)
             steers[i] = steering_angle
             i += 1
@@ -514,3 +382,18 @@ def train_model(model, X_train, X_valid, y_train, y_valid):
 model = NVIDIA_model()
 train_model(model, *data)
 
+
+# ---
+# ## Step 5: Model Testing on the simulator
+# The model was able to drive the car safely through the track without leaving the drivable portion of the track surface.
+# 
+# ### First Track:
+# [![First Track](./Images/driving.PNG)](https://youtu.be/EWvqiYJnKfY)
+# **[YouTube Link](https://youtu.be/hTPADovdyfA)**
+
+# ---
+# ## Conclusion
+# 
+# Using NVIDIA's End to End learning network, the model was able to drive the car through the first track. I've only used the training data provided by Udacity.
+# One way to improve the model is to collect more data from the mountain track, and train the model to go through this challenging track as well.
+# We can also modify `drive.py` script to change the maximum speed and make it related to the steering angle, in order to make the car speed up in the straight parts of the track, and slow down in the curved parts.
