@@ -180,47 +180,22 @@ I've added a dropout layer to the model to prevent overfitting.
 -  I used `ModelCheckpoint` from Keras to check the validation loss after each epoch and save the model only if the validation loss reduced.
 
 ### Model Training:
-Layer (type)                     Output Shape          Param #     Connected to        
 
-lambda_9 (Lambda)                (None, 66, 200, 3)    0           lambda_input_9[0][0]             
-____________________________________________________________________________________________________
-convolution2d_41 (Convolution2D) (None, 31, 98, 24)    1824        lambda_9[0][0]                   
-____________________________________________________________________________________________________
-convolution2d_42 (Convolution2D) (None, 14, 47, 36)    21636       convolution2d_41[0][0]           
-____________________________________________________________________________________________________
-convolution2d_43 (Convolution2D) (None, 5, 22, 48)     43248       convolution2d_42[0][0]           
-____________________________________________________________________________________________________
-convolution2d_44 (Convolution2D) (None, 3, 20, 64)     27712       convolution2d_43[0][0]           
-____________________________________________________________________________________________________
-convolution2d_45 (Convolution2D) (None, 1, 18, 64)     36928       convolution2d_44[0][0]           
-____________________________________________________________________________________________________
-dropout_9 (Dropout)              (None, 1, 18, 64)     0           convolution2d_45[0][0]           
-____________________________________________________________________________________________________
-flatten_9 (Flatten)              (None, 1152)          0           dropout_9[0][0]                  
-____________________________________________________________________________________________________
-dense_33 (Dense)                 (None, 100)           115300      flatten_9[0][0]                  
-____________________________________________________________________________________________________
-dense_34 (Dense)                 (None, 50)            5050        dense_33[0][0]                   
-____________________________________________________________________________________________________
-dense_35 (Dense)                 (None, 10)            510         dense_34[0][0]                   
-____________________________________________________________________________________________________
-dense_36 (Dense)                 (None, 1)             11          dense_35[0][0]                   
-
-Total params: 252,219
-Trainable params: 252,219
-Non-trainable params: 0
+<figure>
+ <img src="Images/Network.png" width="624" alt="Combined Image" />
+ <figcaption>
+ <p></p>
+ </figcaption>
+</figure>
 
 ### Model Evaluation:
-Epoch 1/10  ---> loss: 0.0262 - val_loss: 0.0092
-Epoch 2/10  ---> loss: 0.0212 - val_loss: 0.0103
-Epoch 3/10  ---> loss: 0.0180 - val_loss: 0.0084
-Epoch 4/10  ---> loss: 0.0168 - val_loss: 0.0105
-Epoch 5/10  ---> loss: 0.0159 - val_loss: 0.0101
-Epoch 6/10  ---> loss: 0.0163 - val_loss: 0.0101
-Epoch 7/10  ---> loss: 0.0153 - val_loss: 0.0089
-Epoch 8/10  ---> loss: 0.0149 - val_loss: 0.0084
-Epoch 9/10  ---> loss: 0.0148 - val_loss: 0.0087
-Epoch 10/10 ---> loss: 0.0142 - val_loss: 0.0092
+
+<figure>
+ <img src="Images/validation.png" width="624" alt="Combined Image" />
+ <figcaption>
+ <p></p>
+ </figcaption>
+</figure>
 
 ---
 ## Step 5: Model Testing on the simulator:
