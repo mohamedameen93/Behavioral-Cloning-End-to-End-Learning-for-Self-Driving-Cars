@@ -182,7 +182,7 @@ I've added a dropout layer to the model to prevent overfitting.
 ### Model Training:
 
 <figure>
- <img src="Images/Network.png" width="624" alt="Combined Image" />
+ <img src="./Images/Network.png" width="624" alt="Combined Image" />
  <figcaption>
  <p></p>
  </figcaption>
@@ -191,7 +191,7 @@ I've added a dropout layer to the model to prevent overfitting.
 ### Model Evaluation:
 
 <figure>
- <img src="Images/validation.png" width="624" alt="Combined Image" />
+ <img src="./Images/validation.png" width="624" alt="Combined Image" />
  <figcaption>
  <p></p>
  </figcaption>
