@@ -182,7 +182,7 @@ I've added a dropout layer to the model to prevent overfitting.
 ### Model Training:
 
 <figure>
- <img src="./Images/Network.png" width="624" alt="Combined Image" />
+ <img src="./Images/Network.png" width="1172" alt="Combined Image" />
  <figcaption>
  <p></p>
  </figcaption>
@@ -191,7 +191,7 @@ I've added a dropout layer to the model to prevent overfitting.
 ### Model Evaluation:
 
 <figure>
- <img src="./Images/validation.png" width="624" alt="Combined Image" />
+ <img src="Images/validation.png" width="993" alt="Combined Image" />
  <figcaption>
  <p></p>
  </figcaption>
@@ -203,6 +203,7 @@ The model was able to drive the car safely through the track without leaving the
 
 ### First Track:
 [![First Track](./Images/driving.PNG)](https://youtu.be/EWvqiYJnKfY)
+
 **[YouTube Link](https://youtu.be/hTPADovdyfA)**
 
 
