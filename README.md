@@ -181,21 +181,36 @@ I've added a dropout layer to the model to prevent overfitting.
 
 ### Model Training:
 
-<figure>
- <img src="./Images/Network.png" width="1172" alt="Combined Image" />
- <figcaption>
- <p></p>
- </figcaption>
-</figure>
+| Layer (type)                   |Output Shape      |Params  |Connected to     |
+|--------------------------------|------------------|-------:|-----------------|
+|lambda_1 (Lambda)               |(None, 66, 200, 3)|0       |lambda_input_1   |
+|convolution2d_1 (Convolution2D) |(None, 31, 98, 24)|1824    |lambda_1         |
+|convolution2d_2 (Convolution2D) |(None, 14, 47, 36)|21636   |convolution2d_1  |
+|convolution2d_3 (Convolution2D) |(None, 5, 22, 48) |43248   |convolution2d_2  |
+|convolution2d_4 (Convolution2D) |(None, 3, 20, 64) |27712   |convolution2d_3  |
+|convolution2d_5 (Convolution2D) |(None, 1, 18, 64) |36928   |convolution2d_4  |
+|dropout_1 (Dropout)             |(None, 1, 18, 64) |0       |convolution2d_5  |
+|flatten_1 (Flatten)             |(None, 1152)      |0       |dropout_1        |
+|dense_1 (Dense)                 |(None, 100)       |115300  |flatten_1        |
+|dense_2 (Dense)                 |(None, 50)        |5050    |dense_1          |
+|dense_3 (Dense)                 |(None, 10)        |510     |dense_2          |
+|dense_4 (Dense)                 |(None, 1)         |11      |dense_3          |
+|                                |**Total params**  |252,219 |                 |
 
-### Model Evaluation:
+## Model Evaluation:
 
-<figure>
- <img src="Images/validation.png" width="993" alt="Combined Image" />
- <figcaption>
- <p></p>
- </figcaption>
-</figure>
+| Epoch         |Loss       |Validation Loss  |
+|---------------|-----------|-----------------|
+|1/10           |0.0266     |0.0112           |
+|2/10           |0.0212     |0.0106           |
+|3/10           |0.0183     |0.0102           |
+|4/10           |0.0170     |0.0085           |
+|5/10           |0.0165     |0.0085           |
+|6/10           |0.0159     |0.0120           |
+|7/10           |0.0155     |0.0093           |
+|8/10           |0.0156     |0.0102           |
+|9/10           |0.0150     |0.0090           |
+|10/10          |0.0145     |0.0093           |
 
 ---
 ## Step 5: Model Testing on the simulator:
